@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #e6ccff;
+}
+
+::-webkit-scrollbar {
+  @apply hidden;
+}
+
+.reset-tw :not(pre):not(code) {
+  all: revert;
+}
+
+.loader div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader div:nth-child(3er) {
+  animation-delay: 0.4s;
+}
