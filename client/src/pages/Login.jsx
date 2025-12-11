@@ -1,4 +1,6 @@
 import React from 'react'
+import { useApp } from '../hooks/useApp';
+import toast from 'react-hot-toast';
 
 const Login = () => {
 
@@ -12,17 +14,31 @@ const Login = () => {
     password: "",
   });
 
+  const { axios, setToken } = useApp()
+
   // handle change input value
   const onChangeHandler = (e) => {
     setData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // handle submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const url = state === "login" ? '/api/users/login' : '/api/users/register';
 
-
+    try {
+      const response = await axios.post(url, { name: data.name, email: data.email, password: data.password });
+      if (response.data.success) {
+        setToken(response.data.token);
+        localStorage.setItem('token', response.data.token);
+        toast.success('Logged in successfully');
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
   };
+
 
   return (
     <form

@@ -3,18 +3,24 @@ import Sidebar from './components/Sidebar'
 import ChatBox from './components/ChatBox'
 import Credits from './pages/Credits'
 import Community from './pages/Community'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { assets } from './assets/assets'
 import './assets/prism.css'
 import { useApp } from './hooks/useApp'
 import Login from './pages/Login'
+import { Toaster } from 'react-hot-toast'
+import Loading from './components/Loading'
 
 const App = () => {
-
+  const { pathname } = useLocation()
   const [isOpen, setIsOpen] = useState(true)
-  const { user } = useApp()
+  const { user, isLoading } = useApp()
+  if (pathname === '/loading' || isLoading) {
+    return <Loading />
+  }
   return (
     <>
+      <Toaster position='top-center' />
       {!isOpen && (
         <img
           src={assets.menu_icon}

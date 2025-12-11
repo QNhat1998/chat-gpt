@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useApp } from '../hooks/useApp'
 import Message from './Message'
 import { assets } from '../assets/assets'
+import toast from 'react-hot-toast'
 
 const ChatBox = () => {
 
   const containerRef = useRef(null)
-  const { selectedChat, theme } = useApp()
+  const { selectedChat, theme, axios, token, user } = useApp()
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState('image')
@@ -27,6 +28,38 @@ const ChatBox = () => {
       })
     }
   }, [messages])
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault()
+      if (!user) return toast.error('Login to send message')
+      setLoading(true)
+      const promptCopy = prompt
+      setPrompt('')
+      setMessages(prev => [...prev, { role: 'user', content: prompt, timestamp: Date.now(), isImage: false }])
+
+      const { data } = await axios.post(`/api/messages/${mode}`, { chatId: selectedChat._id, prompt, isPublished }, { headers: { Authorization: token } })
+
+      if (data.success) {
+        setMessages(prev => [...prev, data.reply])
+        if (mode === 'image') {
+          toast.success('Image generated successfully')
+        } else {
+          toast.success('Message sent successfully')
+        }
+        setLoading(false)
+      } else {
+        toast.error(data.message)
+        setPrompt(promptCopy)
+      }
+    } catch (error) {
+      toast.error(error.response.data.message)
+    } finally {
+      setPrompt('')
+      setLoading(false)
+    }
+  }
+
   return (
     <div className='flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40'>
 
@@ -68,7 +101,7 @@ const ChatBox = () => {
       )}
 
 
-      <form className='bg-primary/20 dark:bg-[#57317C]/30 border border-[#80699F]/30 rounded-full p-3 flex items-center gap-4 w-full max-w-2xl pl-4'>
+      <form onSubmit={handleSubmit} className='bg-primary/20 dark:bg-[#57317C]/30 border border-[#80699F]/30 rounded-full p-3 flex items-center gap-4 w-full max-w-2xl pl-4'>
         <select onChange={(e) => setMode(e.target.value)} value={mode}
           className='text-sm pl-3 pr-2 outline-none'>
           <option className='dark:bg-purple-900' value="text">Text</option>
