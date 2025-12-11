@@ -1,6 +1,8 @@
 import Chat from '../models/chat.model.js'
 import User from '../models/user.model.js'
 import openai from '../config/openai.js'
+import imagekit from '../config/image.js'
+import axios from 'axios'
 
 // Text-based AI Chat Message Controller
 export const textMessageController = async (req, res) => {
